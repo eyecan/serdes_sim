@@ -62,6 +62,20 @@ result = Simulator(config).run()
 print("Estimated BER:", result.statistical.ber if result.statistical else "n/a")
 ```
 
+## Examples
+
+Several runnable example scripts live in the :mod:`examples/` directory:
+
+- `python examples/basic_simulation.py` runs a combined statistical and
+  bit-by-bit simulation and prints summary metrics.
+- `python examples/plot_eye.py` generates eye-density, BER, and PDF plots and
+  stores them under `example_outputs/`.
+- `python examples/ibis_models.py` derives IBIS-AMI model dictionaries and
+  enumerates their IBIS/AMI corner variants.
+
+Use these scripts as starting points for your own studies or adapt the
+snippets into notebooks as needed.
+
 ## Plotting
 
 The :mod:`serdessim.plots` module contains helpers to visualize simulation
