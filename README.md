@@ -72,6 +72,8 @@ Several runnable example scripts live in the :mod:`examples/` directory:
   stores them under `example_outputs/`.
 - `python examples/ibis_models.py` derives IBIS-AMI model dictionaries and
   enumerates their IBIS/AMI corner variants.
+- `python examples/prbs_demo.py` synthesizes a PRBS7 stimulus and recovers the
+  detected pattern at the receiver side.
 
 Use these scripts as starting points for your own studies or adapt the
 snippets into notebooks as needed.

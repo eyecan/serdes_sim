@@ -4,7 +4,7 @@ This package provides behavioral models and simulation utilities for
 serializer/deserializer (SerDes) design exploration.
 """
 
-from .signal import SignalSpec, SignalType, generate_waveform
+from .signal import SignalSpec, SignalType, generate_waveform, prbs7
 from .filters import FeedForwardEqualizer, ContinuousTimeLinearEqualizer
 from .ibis import (
     IbisCorner, AmiCorner, IbisAmiModel, LtiAmiModel, NltvAmiModel,
@@ -24,6 +24,7 @@ __all__ = [
     "SignalSpec",
     "SignalType",
     "generate_waveform",
+    "prbs7",
     "FeedForwardEqualizer",
     "ContinuousTimeLinearEqualizer",
     "IbisCorner",
