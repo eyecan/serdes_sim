@@ -28,6 +28,7 @@ class SimulationConfiguration:
     statistical: bool = True
     bit_by_bit: bool = True
     ncores: int = 1
+    statistical_kernel_samples: int = 2048
 
 
 @dataclass
@@ -75,7 +76,12 @@ class Simulator:
 
         statistical_result: SimulationResult | None = None
         if self.config.statistical:
-            stats = StatisticalSimulator(impulse, self.config.signal.symbol_rate)
+            stats = StatisticalSimulator(
+                impulse,
+                sample_rate,
+                self.config.signal.symbol_rate,
+                max_kernel_samples=self.config.statistical_kernel_samples,
+            )
             statistical_result = stats.run(noise_sigma=self.config.jitter_sigma)
 
         bit_by_bit_result: Tuple[np.ndarray, np.ndarray] | None = None

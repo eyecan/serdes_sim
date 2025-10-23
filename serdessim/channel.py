@@ -115,22 +115,50 @@ class SimulationResult:
 class StatisticalSimulator:
     """Perform statistical channel analysis."""
 
-    def __init__(self, channel: np.ndarray, symbol_rate: float):
+    def __init__(
+        self,
+        channel: np.ndarray,
+        sample_rate: float,
+        symbol_rate: float,
+        *,
+        max_kernel_samples: int = 2048,
+    ) -> None:
         self.channel = channel
+        self.sample_rate = sample_rate
         self.symbol_rate = symbol_rate
+        self.max_kernel_samples = max_kernel_samples
+
+    def _windowed_impulse(self) -> np.ndarray:
+        """Return a slice of the impulse with manageable length."""
+
+        impulse = self.channel
+        if impulse.size <= self.max_kernel_samples:
+            return impulse
+
+        energy = np.abs(impulse) ** 2
+        peak = int(np.argmax(energy))
+        half = self.max_kernel_samples // 2
+        start = max(0, peak - half)
+        end = min(impulse.size, start + self.max_kernel_samples)
+        start = max(0, end - self.max_kernel_samples)
+        return impulse[start:end]
 
     @cached_property
     def eye_kernel(self) -> np.ndarray:
-        impulse = self.channel
+        impulse = self._windowed_impulse()
         return np.outer(impulse, impulse)
 
     def run(self, noise_sigma: float = 0.01) -> SimulationResult:
         eye_density = np.maximum(self.eye_kernel, 0)
-        eye_time = np.linspace(-0.5, 0.5, eye_density.shape[0])
+        num_samples = eye_density.shape[0]
+        ui = 1.0 / self.symbol_rate
+        dt = 1.0 / self.sample_rate
+        time_offsets = (np.arange(num_samples) - num_samples // 2) * dt
+        eye_time = time_offsets / ui
         amplitude_pdf = np.sum(eye_density, axis=0)
         pdf = np.sum(eye_density, axis=1)
-        ber = float(np.exp(-1 / (2 * noise_sigma ** 2)))
-        bathtub = np.column_stack((eye_time, np.clip(1 - eye_time ** 2, 0, None)))
+        ber = float(np.exp(-1 / (2 * noise_sigma**2)))
+        bathtub = np.column_stack((eye_time, np.clip(1 - eye_time**2, 0, None)))
         artifacts = SimulationArtifacts(
             eye_density=eye_density,
             eye_time=eye_time,
@@ -139,7 +167,9 @@ class StatisticalSimulator:
         )
         return SimulationResult(
             ber=ber,
-            ber_curve=np.column_stack((eye_time, np.exp(-eye_time**2 / (2 * noise_sigma**2)))),
+            ber_curve=np.column_stack(
+                (eye_time, np.exp(-eye_time**2 / (2 * noise_sigma**2)))
+            ),
             timing_bathtub=bathtub,
             amplitude_bathtub=np.column_stack((amplitude_pdf, amplitude_pdf[::-1])),
             eye_metrics={
