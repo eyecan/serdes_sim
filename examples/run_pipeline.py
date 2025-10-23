@@ -2,10 +2,29 @@
 from __future__ import annotations
 
 import argparse
+import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-from serdes import (
+
+def _ensure_repo_on_path() -> None:
+    """Allow running the example directly via ``python examples/run_pipeline.py``.
+
+    When executed as a script, Python only places the ``examples`` directory on the
+    module search path. Insert the repository root so the local ``serdes`` package
+    can be imported without requiring a prior ``pip install -e .``.
+    """
+
+    repo_root = Path(__file__).resolve().parents[1]
+    repo_str = str(repo_root)
+    if repo_str not in sys.path:
+        sys.path.insert(0, repo_str)
+
+
+_ensure_repo_on_path()
+
+from serdes import (  # noqa: E402  (import after path fix)
     CdrConfig,
     ChannelConfig,
     EyeConfig,
@@ -15,7 +34,7 @@ from serdes import (
     SignalConfig,
     TxEqualizerConfig,
 )
-from serdes.plotting import plot_bathtub, plot_eye, plot_waveform
+from serdes.plotting import plot_bathtub, plot_eye, plot_waveform  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
